@@ -1,4 +1,4 @@
-# Herdr Multi-Agent Development
+﻿# Herdr Multi-Agent Development
 
 Một skill giúp agent hiểu công việc trước khi chia việc: bắt đầu từ ngữ cảnh nghiệp vụ, tạo BigPlan đầy đủ, rồi tổ chức thực hiện theo phụ thuộc thật giữa các phần việc.
 
@@ -12,7 +12,7 @@ Bản này chuyển trọng tâm sang **nghiệp vụ và bằng chứng hoàn t
 
 ~~~mermaid
 flowchart TD
-    A[Người dùng + ngữ cảnh đầy đủ] --> B[Khám phá: grill-me, wayfinder, scout]
+    A[Người dùng + ngữ cảnh đầy đủ] --> B[Khám phá: subagents, web/search tools]
     B --> C[Chốt hướng, quyết định và điều chưa rõ]
     C --> D[BigPlan: bối cảnh, luật, thiết kế, nghiệm thu]
     D --> E[work-map.yaml: đồ thị phụ thuộc và file giao nhau]
@@ -60,4 +60,3 @@ Agent nên nói như một đồng nghiệp hiểu việc: rõ ràng, tự nhiê
 ## English overview
 
 This skill turns a complex software request into a complete, business-centered BigPlan and a dependency graph. Tasks have a stable specification and a sibling session log that records actual work and evidence. The graph—not fixed roles or waves—determines what can run in parallel. Herdr is a runtime option; OpenRig is an optional source of ideas for persistent context and work ownership.
-

@@ -71,4 +71,3 @@ Do not fabricate sessions or results. Do not copy the full conversation; record 
 A dispatch identifies the task folder, complete files to read, allowed scope, and expected evidence. It can be brief because canonical details live in files, but cannot replace them with a summary.
 
 On resume, read the full task.md and latest session-log entry, then verify the stated repository state. Continue from the recorded next action and preserve unresolved items.
-

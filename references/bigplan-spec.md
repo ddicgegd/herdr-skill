@@ -29,9 +29,9 @@ Create only artifacts needed by the initiative, but keep their canonical respons
 - context-and-decisions.md: full relevant user context, observed behavior, examples, constraints, non-goals, decisions, assumptions, unresolved questions, and sources. Distinguish facts, inferences, and user decisions.
 - business-rules.md: complete initiative-wide rules outside task files. Give each rule a stable ID, full normative statement, known examples/edge cases, source evidence, and affected behavior. Do not paraphrase rules into shorter task-local versions.
 - solution-design.md: selected solution and rationale, domain concepts, data/API/event contracts, state transitions, security behavior, failure handling, and compatibility requirements as applicable. Separate settled decisions from open options.
-- work-map.yaml: static dependency graph, task metadata, dependencies, exact file sets, and contracts. Follow references/work-graph.md.
+- work-map.yaml: static dependency graph, task metadata, dependencies, exact file sets, and contracts. Follow [work-graph.md](./work-graph.md).
 - tasks/Txxx/task.md: full bounded task specification described below.
-- tasks/Txxx/session-log.md: append-only execution and evidence history described in references/task-session-lifecycle.md.
+- tasks/Txxx/session-log.md: append-only execution and evidence history described in [task-session-lifecycle.md](./task-session-lifecycle.md).
 - validation-and-integration.md: checks proving each business outcome and the combined flow. State relevant tests/builds/migrations/runtime checks and why. Mark non-applicable checks with a reason.
 
 ## Required task.md content
@@ -52,4 +52,3 @@ Do not say “implement per spec.” Do not invent exact classes, signatures, te
 ## No lossy summaries or placeholders
 
 Do not summarize away requirements, rules, decisions, interfaces, constraints, dependencies, acceptance conditions, or source paths needed to build or validate the work. A short index or dispatch may link to canonical files but must identify exactly which complete files/sections to read. Label genuine unresolved decisions and their impact. A plan is not ready if it has placeholders, undocumented assumptions, unresolved write ownership, or unobservable acceptance criteria.
-

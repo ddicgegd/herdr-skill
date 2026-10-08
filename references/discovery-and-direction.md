@@ -4,7 +4,7 @@ These are thinking activities, not mandatory agent roles or separate processes.
 
 ## Clarify the problem and decisions
 
-Work from the user's full context. Identify the business problem, desired behavior, examples, decisions already made, constraints, non-goals, and unknowns that could change behavior, data, security, architecture, or scope. Ask focused questions only when a consequential unknown cannot be inferred. Record the exact decision, source, and remaining uncertainty.
+Work from the user's full context. Identify the business problem, desired behavior, examples, decisions already made, constraints, non-goals, and unknowns that could change behavior, data, security, architecture, or scope. Always ask probing questions closely following the context, without limiting the number of questions (do not limit to 3 or 4 questions), until all consequential unknowns and edge cases are completely clarified. Record the exact decision, source, and remaining uncertainty.
 
 ## Establish the destination
 
@@ -17,4 +17,3 @@ Inspect project instructions, current state, relevant plans, domain models, code
 ## Preserve complete context
 
 Write canonical context and decisions to initiative files. Do not compress away business rules, constraints, acceptance criteria, or contracts. A navigation index may point to complete sources but cannot replace them. Each task handoff identifies exact files and rule sections to read.
-

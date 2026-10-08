@@ -14,4 +14,3 @@ OpenRig describes a local daemon, CLI, TUI, and MCP for persistent topology, tas
 6. Preserve a runtime-independent fallback so the initiative can be resumed from BigPlan and session logs if runtime state is unavailable.
 
 OpenRig startup and permissions can modify user and workspace configuration. Inspect current setup guidance and explain material file changes before initiating installation or setup.
-

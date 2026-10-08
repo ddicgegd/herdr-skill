@@ -20,4 +20,3 @@ Use the task graph to select ready work and available capacity. Dispatch the tas
 Use isolated working directories when concurrent edits could collide or the runtime requires isolation. Derive isolation from repository status, write paths, and runtime semantics; do not blindly create or delete worktrees. Never force-remove a worktree, branch, or pane without checking ownership and uncommitted work.
 
 Verify actual runtime state before recording a task as started or complete. Record command results, repository changes, test output, and unresolved handoffs in session-log.md. A message sent is not proof that work started; an agent response is not proof that acceptance passed.
-

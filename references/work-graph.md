@@ -127,4 +127,3 @@ Compare all creates/modifies sets before dispatch. Resolve shared writes using a
 Confirm every node links to task.md and session-log.md; names exact paths, full rule references, outputs, and observable acceptance; dependencies identify required artifacts; contracts are recorded before parallel implementation; write conflicts have a resolution; all outcomes connect to initiative validation; and hard prerequisites contain no cycles.
 
 The runtime may render a visual graph, but work-map.yaml remains the source of truth. Do not maintain a second hand-edited diagram that can drift.
-
