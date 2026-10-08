@@ -1,57 +1,63 @@
 # Herdr Multi-Agent Development
 
-Một skill giúp agent hiểu công việc trước khi chia việc: bắt đầu từ ngữ cảnh nghiệp vụ, tạo BigPlan đầy đủ, rồi tổ chức thực hiện theo phụ thuộc thật giữa các phần việc.
+Một skill giúp agent hiểu công việc trước khi chia việc: bắt đầu từ ngữ cảnh nghiệp vụ, khảo sát đúng code/config/service liên quan, tạo BigPlan đầy đủ, rồi tổ chức thực hiện theo phụ thuộc thật giữa các phần việc.
 
 ## Vì sao có skill này?
 
-Bản thiết kế ban đầu cố bao quát toàn bộ quy trình bằng role cố định, wave cố định và cặp worker/reviewer. Cách đó tạo ra một lịch làm việc trông rất gọn, nhưng không bảo đảm agent hiểu nghiệp vụ, không chỉ ra chính xác task phụ thuộc nhau thế nào, và dễ ép các dự án khác nhau vào cùng một khuôn.
+Bản thiết kế ban đầu cố bao quát toàn bộ quy trình bằng role cố định, wave cố định và cặp worker/reviewer. Cách đó tạo ra một lịch làm việc trông gọn, nhưng không bảo đảm agent hiểu nghiệp vụ, không chỉ ra chính xác task phụ thuộc nhau thế nào, và dễ ép các dự án khác nhau vào cùng một khuôn.
 
-Bản này chuyển trọng tâm sang **nghiệp vụ và bằng chứng hoàn thành**. Agent tự chọn làm tuần tự, song song hay một mình dựa trên quan hệ phụ thuộc, file cùng sửa, mức rủi ro và runtime có sẵn. Herdr điều khiển terminal và agent; OpenRig là nguồn cảm hứng cho context bền vững và ownership, không phải điều kiện bắt buộc.
+Bản này chuyển trọng tâm sang **nghiệp vụ, bằng chứng hoàn thành và tích hợp an toàn**. Agent tự chọn làm tuần tự, song song hay một mình dựa trên dependency thật, file cùng sửa, rủi ro và năng lực runtime. Không áp đặt danh sách vai trò hay tên agent.
+
+Herdr là runtime mặc định. Khi tạo plan, skill cũng tạo `herdr-runbook.md` riêng với lệnh đã kiểm chứng. File này có thể xóa nếu muốn chuyển sang runtime khác; BigPlan và task vẫn giữ nguyên vì mô tả nghiệp vụ chứ không phụ thuộc vào CLI.
 
 ## Luồng làm việc
 
 ~~~mermaid
 flowchart TD
     A[Người dùng + ngữ cảnh đầy đủ] --> B[Khám phá: grill-me, wayfinder, scout]
-    B --> C[Chốt hướng, quyết định và điều chưa rõ]
-    C --> D[BigPlan: bối cảnh, luật, thiết kế, nghiệm thu]
-    D --> E[work-map.yaml: đồ thị phụ thuộc và file giao nhau]
-    E --> F[task.md + session-log.md cho mỗi task]
-    F --> G{Chọn cách thực hiện theo graph}
-    G -->|Độc lập| H[Chạy song song an toàn]
-    G -->|Có phụ thuộc| I[Chạy khi đầu vào hoặc hợp đồng đã sẵn sàng]
-    G -->|Không đáng tách| J[Một luồng thực hiện]
-    H --> K[Kiểm chứng bằng kết quả thực tế]
-    I --> K
-    J --> K
-    K --> L[Kiểm tra chéo theo rủi ro và tích hợp]
-    L --> M[Đóng việc bằng bằng chứng]
+    B --> C[Khảo sát code, style từng service, cấu hình và dịch vụ bên thứ ba]
+    C --> D[Chốt hướng, quyết định và điều cần hỏi]
+    D --> E[BigPlan: luật, thiết kế, checklist kiểm chứng theo service]
+    E --> F[work-map.yaml: dependency, xung đột file, TODO handoff, việc sẵn sàng]
+    F --> G[Task: task.md + session-log.md]
+    G --> H[Tạo nhánh nghiệp vụ trước khi sửa code]
+    H --> I{Chọn việc READY theo graph}
+    I -->|Độc lập| J[Thực hiện song song an toàn]
+    I -->|Thiếu đầu vào| K[Chờ handoff; làm việc READY khác]
+    J --> L[Chạy checklist phù hợp + ghi bằng chứng]
+    K --> I
+    L --> M[Tích hợp vào nhánh nghiệp vụ]
+    M --> N[Kiểm tra luồng kết hợp và mọi TODO trong phạm vi]
+    N --> O[Hoàn tất khi có bằng chứng]
+    P[Herdr mặc định + herdr-runbook.md riêng] --> I
 ~~~
 
-Sơ đồ không quy định thứ tự tuyến tính cho mọi task. Một task chỉ phải chờ khi nó thực sự cần đầu ra hoặc hợp đồng của task khác.
+Sơ đồ không ép mọi task chạy tuần tự. Một task chỉ chờ khi nó thật sự cần đầu ra hoặc hợp đồng từ task khác.
 
 ## BigPlan và task
 
-BigPlan lưu toàn bộ thông tin cần để xây và kiểm tra kết quả:
+BigPlan lưu đủ thông tin để xây, kiểm tra và tích hợp kết quả:
 
-- `context-and-decisions.md`: ngữ cảnh người dùng, phát hiện từ repo, quyết định, giả định và câu hỏi còn mở.
+- `context-and-decisions.md`: ngữ cảnh người dùng, phát hiện từ repo, cấu hình, phong cách code theo từng service, phụ thuộc bên thứ ba, quyết định, giả định và câu hỏi còn mở.
 - `business-rules.md`: quy chuẩn nghiệp vụ đầy đủ, có ID ổn định, nằm ngoài task để nhiều task cùng tham chiếu.
 - `solution-design.md`: thiết kế được chọn, hợp đồng và các ranh giới quan trọng.
-- `work-map.yaml`: map tĩnh dạng graph, có dependency, hợp đồng, đường dẫn đọc/tạo/sửa và đầu ra nghiệm thu.
-- `tasks/<id>/task.md`: nội dung và luồng cụ thể bên trong task.
-- `tasks/<id>/session-log.md`: nhật ký từng phiên gồm việc đã làm, quyết định, lệnh và kết quả kiểm tra, file thay đổi, blocker và bước tiếp theo.
+- `work-map.yaml`: graph tĩnh có dependency, contract, TODO handoff, đường dẫn đọc/tạo/sửa và kết nối tới kiểm chứng.
+- `tasks/<id>/task.md`: kết quả, đường đi cụ thể, phạm vi file, tiêu chuẩn code theo service, checklist phù hợp và điều kiện nghiệm thu.
+- `tasks/<id>/session-log.md`: nhật ký từng phiên gồm việc đã làm, lệnh và kết quả kiểm tra, file thay đổi, handoff, blocker và bước tiếp theo.
+- `validation-and-integration.md`: checklist theo từng task/service/dependency và kiểm tra luồng kết hợp.
+- `herdr-runbook.md`: file riêng chứa lệnh Herdr đã xác minh để điều phối, xem trạng thái, chờ/tiếp tục và ghi báo cáo.
 
-Không rút gọn mất luật, điều kiện, hợp đồng hoặc bằng chứng cần thiết. Một lời giao việc có thể ngắn nếu nó trỏ tới đúng file và mục đầy đủ.
+Không rút gọn mất luật, điều kiện, hợp đồng hoặc bằng chứng cần thiết. Worker có thể vừa triển khai vừa chạy checklist của task; việc đó không thay thế kiểm tra tích hợp sau khi ghép các phần.
 
 ## Dùng trong Herdr
 
-Mở dự án trong Herdr, chạy agent bạn muốn dùng trong pane, rồi yêu cầu agent tạo BigPlan trước khi sửa code:
+Mở dự án trong Herdr, chạy agent bạn muốn dùng trong pane, rồi yêu cầu tạo BigPlan trước khi sửa code:
 
 ~~~text
-Dùng skill herdr-multiagent-development. Hãy đọc yêu cầu và repo, làm rõ các quyết định nghiệp vụ, rồi tạo BigPlan đầy đủ. Bao gồm work-map.yaml và mỗi task có task.md cùng session-log.md. Chưa triển khai code; hãy báo đường dẫn các file plan để tôi xem.
+Dùng skill herdr-multiagent-development. Hãy đọc yêu cầu và repo, làm rõ các quyết định nghiệp vụ, khảo sát code/config và các dịch vụ bên thứ ba liên quan, rồi tạo BigPlan đầy đủ. Bao gồm work-map.yaml, từng task có task.md cùng session-log.md, validation-and-integration.md và herdr-runbook.md với lệnh Herdr đã kiểm chứng. Chưa triển khai code; hãy báo đường dẫn plan và các vấn đề cấu hình/dependency cần tôi quyết định.
 ~~~
 
-Sau khi xem và đồng ý với plan, yêu cầu agent tiếp tục từ thư mục đó. Agent phải đọc đầy đủ các quy chuẩn liên quan, chọn task sẵn sàng theo map, và ghi kết quả thật vào session log. Lệnh Herdr thay đổi theo phiên bản; xem [Herdr docs](https://herdr.dev/docs/) và hướng dẫn runtime trước khi dùng CLI.
+Sau khi plan được duyệt, yêu cầu agent tiếp tục từ thư mục đó. Agent điều phối phải đọc runbook, tạo nhánh nghiệp vụ trước khi sửa code, dùng Herdr để dispatch và theo dõi task READY/WAITING/BLOCKED, tích hợp kết quả và xác minh luồng kết hợp. Lệnh Herdr thay đổi theo phiên bản; runbook phải dựa trên tài liệu và CLI đang cài, không dựa trên lệnh ghi nhớ.
 
 ## Cách skill giao tiếp
 
@@ -59,5 +65,4 @@ Agent nên nói như một đồng nghiệp hiểu việc: rõ ràng, tự nhiê
 
 ## English overview
 
-This skill turns a complex software request into a complete, business-centered BigPlan and a dependency graph. Tasks have a stable specification and a sibling session log that records actual work and evidence. The graph—not fixed roles or waves—determines what can run in parallel. Herdr is a runtime option; OpenRig is an optional source of ideas for persistent context and work ownership.
-
+This skill turns a complex software request into a complete, business-centered BigPlan and dependency graph. It scouts real service conventions, configuration, and external dependencies; creates per-task verification evidence; keeps initiative work on a new branch; and integrates task outcomes safely. Herdr is the default runtime, with its CLI guide isolated in a removable `herdr-runbook.md`.

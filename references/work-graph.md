@@ -4,15 +4,27 @@ Use a directed graph of business work and evidence-producing checks. It is a dep
 
 ## Graph rules
 
-- A node is a bounded task with an observable business or integration outcome.
-- depends_on means the predecessor's output is required before this work can proceed.
-- contract_with means a boundary must be agreed before connected implementation proceeds; once recorded, those implementations may run concurrently.
-- validates connects a validation task to the output it checks.
+- A node is bounded work with an observable business or integration outcome.
+- `depends_on` means the predecessor's output is required before this work can proceed.
+- `contract_with` means a boundary must be agreed before connected implementation proceeds; after that, implementations may run concurrently.
+- `validates` links a check to the work/output it verifies. A validation node may live inside a task when one owner can efficiently implement and test that bounded outcome; use a separate node when integrated behavior, risk, or ownership calls for it.
 - A shared write path is a collision, not automatically a business dependency. Record it and resolve ownership or coordination before parallel execution.
 - Use exact repository-relative paths for reads, creates, and modifications.
 - Hard prerequisites must be acyclic. A cycle means revise the decomposition or contract boundary.
 - A task is ready when its actual prerequisites/contracts are met and its write paths are safely owned. Do not schedule by file order.
 - Choose task ownership dynamically. Never encode fixed agent IDs or roles.
+- Every in-scope TODO in code must name the task that owns its completion. Represent that handoff in the map with the needed predecessor/consumer relationship and the affected path or contract. A TODO is not evidence that the behavior is complete.
+- Tie every node's deliverable to initiative acceptance or an explicitly out-of-scope follow-up.
+
+## Ready, blocked, and waiting work
+
+The graph remains static; runtime status belongs in task logs. The coordinating session maintains the current ready set from graph dependencies and actual worktree state.
+
+- READY: prerequisites and contracts are satisfied, and write ownership is safe.
+- BLOCKED: a specific prerequisite, decision, service, or artifact is missing. Record the exact missing item and resume condition.
+- WAITING: dispatched work is still running or awaiting a handoff. Observe it through the selected runtime; do not mark it complete based on dispatch.
+- When one node is BLOCKED or WAITING, continue another independent READY node if one exists. If none exists, wait for the named prerequisite, ask the user for a consequential decision, or report the blocker. Do not busy-loop or silently abandon the initiative.
+- When a handoff becomes available, re-evaluate downstream readiness and dispatch/resume newly READY work.
 
 ## YAML source of truth
 
@@ -124,7 +136,6 @@ Compare all creates/modifies sets before dispatch. Resolve shared writes using a
 
 ## Graph review
 
-Confirm every node links to task.md and session-log.md; names exact paths, full rule references, outputs, and observable acceptance; dependencies identify required artifacts; contracts are recorded before parallel implementation; write conflicts have a resolution; all outcomes connect to initiative validation; and hard prerequisites contain no cycles.
+Confirm every node links to task.md and session-log.md; names exact paths, full rule references, outputs, and observable acceptance; dependencies identify required artifacts; TODO handoffs have owners and graph edges; contracts are recorded before parallel implementation; write conflicts have a resolution; all outcomes connect to initiative validation; and hard prerequisites contain no cycles.
 
 The runtime may render a visual graph, but work-map.yaml remains the source of truth. Do not maintain a second hand-edited diagram that can drift.
-
